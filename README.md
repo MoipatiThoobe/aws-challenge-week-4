@@ -1,4 +1,4 @@
-<img width="674" alt="11" src="https://github.com/user-attachments/assets/202ab6a4-8644-4bdb-872e-ab4a0ab4cad2" /># aws-challenge-week-4
+# aws-challenge-week-4
 Week 4 of the 12 weeks of AWS challenge
 
 The fourth week of the challenge focused on storage. AWS offers a complete range of services for you to store, access, govern and analyze your data. In AWS you can select from a wide range of options, such as object storage, file storage and block storage services, backup and data migration options to build the foundation of your cloud IT environment. 
