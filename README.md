@@ -1,4 +1,4 @@
-# aws-challenge-week-4
+<img width="548" alt="1" src="https://github.com/user-attachments/assets/db3bbe51-c342-427d-8248-3aaccf166cdd" /># aws-challenge-week-4
 Week 4 of the 12 weeks of AWS challenge
 
 The fourth week of the challenge focused on storage. AWS offers a complete range of services for you to store, access, govern and analyze your data. In AWS you can select from a wide range of options, such as object storage, file storage and block storage services, backup and data migration options to build the foundation of your cloud IT environment. 
@@ -59,10 +59,228 @@ In the hands on labs, I will be doing the following:
 
 <img width="674" alt="11" src="https://github.com/user-attachments/assets/4afccc7e-3c39-40d8-8b1c-754c5c994540" />
 
-11. Run commands to compare text01 to text02
+11. Run commands to compare text01 to text02. text01 was written before the bucket default was changed, so it uses AES256(SSE-S3). text02 was written after we changed the bucket default, so it inherited the aws:kms (SSE-KMS) encryption.
 
 <img width="656" alt="12" src="https://github.com/user-attachments/assets/a33b600d-cb1c-4458-858c-642500b62424" />
 
-12. 
+12. Update the bucket policy, the new policy encoforces that any new objects placed into ssekms-only/ prefix in the bucket must have SSE-KMS encryption
 
+<img width="950" alt="13" src="https://github.com/user-attachments/assets/4a412c74-3000-4753-8ad0-11f7e9de7edf" />
 
+13. Run comamnds in the SSH session to put text03, text04 and text05 objects into the bucket. The behaviour is as follows:
+* put object for text03 will succeed and is aws:kms because it inherits the default encryption of SSE-KMS as no encryption method has been specified
+* put object for text04 will succeed and it AES256 because we specified to use SSE-S3
+* put object for text05 will succeed and it is aws:kms 
+
+<img width="893" alt="14" src="https://github.com/user-attachments/assets/23c69de5-6dba-48ff-9ffd-7fef2f1e2e08" />
+
+14. Run commands to create new objects under the prefix ssekms-only/*, the behaviour is as follows:
+* put object for text06 will fail because although we have default encryption as SSE-KMS, the bucket policy requires explicit definition for SSE-KMS
+* put pbject for text07 will fail because since AES256 will use SSE-S3 and we only permit SSE-KMS encryption in this prefix per the bucket policy
+* put object for text08 will succeed, since SSE-KMS encryption is explicitly defined and allowed by the bucket policy
+
+<img width="932" alt="15" src="https://github.com/user-attachments/assets/1ffeebec-c26c-49d1-ba21-a89b2b8615f5" />
+
+15. Create an S3 VPC Endpoint
+
+<img width="950" alt="16" src="https://github.com/user-attachments/assets/a11ea8a2-61e0-4bf4-8d23-d3b8cb01e666" />
+
+16. Update the bucket policy with a new policy that limits access to only requests that pass through the VPC endpoint
+
+<img width="953" alt="17" src="https://github.com/user-attachments/assets/0b7247d2-ed87-4f04-b17c-cba3bc8650a2" />
+
+17. In the SSH session, run the following command. This command fails because the EC2 instance is accessing S3 via the internet gateway. The VPC endpoint does not yet have a route table association.
+
+<img width="605" alt="18" src="https://github.com/user-attachments/assets/955e95ee-02b3-4acf-850d-cf859eeb1f11" />
+
+18. Modify the route table to asscociate with the VPC endpoint so that the EC2 instance can access S3 via the VPC endpoint
+
+<img width="952" alt="19" src="https://github.com/user-attachments/assets/715bd43e-d736-477f-a5b0-3b51e94b0dcc" />
+
+19. In the SSH session run the command. The request will be successful because the EC2 instance is able to route its request via the VPC endpoint
+
+<img width="598" alt="20" src="https://github.com/user-attachments/assets/7b96d893-bd07-4204-bd4b-3d460fd351ef" />
+
+20. Configure a rule that searches for S3 buckets that are publically accessible using AWS Config. All of the rules are compliant. 
+
+<img width="646" alt="21" src="https://github.com/user-attachments/assets/ae056924-6fb1-45ed-a7f0-e2345377a987" />
+
+21. Update the bucket policy, the new policy will allow public read of the text01 object. An error will appear because the default block public access is enabled for the bucket.
+
+<img width="715" alt="22" src="https://github.com/user-attachments/assets/ff5891aa-f150-4f48-9036-29ab4200a09c" />
+
+22. Disable block public access
+
+<img width="950" alt="23" src="https://github.com/user-attachments/assets/762562fd-537f-4279-8cff-aa45f44c66a3" />
+
+23. We are now able to successfully update the bucket policy
+
+<img width="959" alt="24" src="https://github.com/user-attachments/assets/a2ceb39c-8dbb-43b8-b2fe-83f6c925e01b" />
+
+24. The AWS config rule is now showing as Non compliant
+
+<img width="782" alt="25" src="https://github.com/user-attachments/assets/f47a4f7a-eea4-4368-801c-57f975e02bcb" />
+
+25. Create an Access analyzer to identify buckets that are public
+
+<img width="953" alt="26" src="https://github.com/user-attachments/assets/f6394821-3818-4b08-90ef-2339841aec02" />
+
+26. Finding of the Access Analyzer
+
+<img width="959" alt="27" src="https://github.com/user-attachments/assets/181b965b-af25-4528-b585-b936ac6d87c1" />
+
+27. Delete the bucket policy that allows public access to objects within the bucket
+
+<img width="959" alt="28" src="https://github.com/user-attachments/assets/1e608fae-14fb-4a2f-882d-3ef5947c5526" />
+
+28. After a few minutes, the access analyzer status is changed to resolved
+
+<img width="941" alt="29" src="https://github.com/user-attachments/assets/bacce3cd-7305-4edc-83ee-291a4aff14e0" />
+
+29. Clean up resources
+
+29.1 Edit the default encryption of S3 buckets to Server-side encryption with Amazon S3 managed keys (SSE-S3)
+
+29.2 Delete the CloudFormation stacks
+
+## Storage performance lab
+
+In the hands on labs, I will be doing the following: 
+* Test the performance of S3 by optimizing throughput, using the SYNC command and optmizing small file operations and copy operations
+* Test the performance of EFS
+
+### S3 Storage performance
+
+1. Deploy the CloudFormation stack
+
+<img width="959" alt="1" src="https://github.com/user-attachments/assets/fb5b6583-d845-45f7-9c2c-c2af4f7df778" />
+
+2. Connect to the EC2 Instance using EC2 instance connect and configure the EC2 instance
+
+<img width="320" alt="2" src="https://github.com/user-attachments/assets/474075a5-6fa3-4df3-be9e-d1734b88dec6" />
+
+3. In the SSH session, run a command to configure the AWS CLI S3 settings
+
+<img width="578" alt="3" src="https://github.com/user-attachments/assets/59a7f316-6eca-4c91-ad35-fd4a346295fd" />
+
+4. Run a command to confirm the CLI configuration
+
+<img width="334" alt="4" src="https://github.com/user-attachments/assets/e0077716-0b71-4a2c-8e8d-9cbf131cd715" />
+
+5. Run a command to create a 1GB file
+
+<img width="560" alt="5" src="https://github.com/user-attachments/assets/1cb790e6-20ca-487d-8af1-14b9a77358ec" />
+
+6. Run a command to upload the file to the S3 bucket using 1 thread. The operation took 25 seconds to complete. 
+
+<img width="623" alt="6" src="https://github.com/user-attachments/assets/1b803759-967f-4dbc-a306-94066bb06830" />
+
+7. Run a command to upload the file to the S3 bucket using 2 threads. The operation took 14 seconds to complete.
+
+<img width="604" alt="7" src="https://github.com/user-attachments/assets/b7c3b4a3-e196-410d-ae41-fc7101292981" />
+
+8. Run a command to upload the file to the S3 bucket using 10 thread. The operation took 4 seconds to complete.
+
+<img width="606" alt="8" src="https://github.com/user-attachments/assets/1fdbb29a-d054-43cc-8dda-9b9f5dda39db" />
+
+9. Run a command to upload the file to the S3 bucket using 20 thread. The operation took 4 seconds to complete.
+
+<img width="608" alt="9" src="https://github.com/user-attachments/assets/8ccfdcc6-42ef-4e79-8eed-b39d9217823e" />
+
+10. Run a command to create a 200MB file
+
+<img width="594" alt="10" src="https://github.com/user-attachments/assets/838d7182-b9e1-49ee-92df-370effe8f198" />
+
+11. Run a command to upload 1GB of data by uploading 5 200MB files in parellel. The operation took 2 seconds to complete.
+
+<img width="881" alt="11" src="https://github.com/user-attachments/assets/9d98c8c4-a9ab-4330-b706-9c9a06963a0b" />
+
+12. Run a command to perform sync using 1 thread, the operation took 3 mins 23 secs to complete:
+aws configure set default.s3.max_concurrent_requests 1 time aws s3 sync /ebs/tutorial/data-1m/ s3://${bucket}/sync1/
+
+<img width="134" alt="12" src="https://github.com/user-attachments/assets/ca23c6c3-d79a-45a5-9f4c-89180471cf40" />
+
+13. Run a command to perform sync using 10 thread, the operation took 22 seconds to complete:
+aws configure set default.s3.max_concurrent_requests 10 time aws s3 sync /ebs/tutorial/data-1m/ s3://${bucket}/sync2/
+
+<img width="119" alt="13" src="https://github.com/user-attachments/assets/8c615ea2-587d-4875-9fa6-6f73f55d9168" />
+
+14. Run a command to create a text file that represents a list of object ids
+
+<img width="237" alt="14" src="https://github.com/user-attachments/assets/53fb59c8-a1ee-4f35-8f9f-16a8ba5f5123" />
+
+15. Run a command to create a 1kb file
+
+<img width="561" alt="15" src="https://github.com/user-attachments/assets/34f4fb94-013d-4bc1-be29-cbb28987cdbc" />
+
+16. Run a command to upload 500 1kb files to S3 using 5 threads, the operation took 49 seconds to complete:
+time parallel --will-cite -a object_ids -j 5 aws s3 cp 1KB.file s3://${bucket}/run1/{}
+
+<img width="121" alt="16" src="https://github.com/user-attachments/assets/dc076f1e-0cd2-4271-9db9-1a4f5025f1f3" />
+
+17.  Run a command to upload 500 1kb files to S3 using 15 threads, the operation took 23.9 seconds to complete:
+time parallel --will-cite -a object_ids -j 15 aws s3 cp 1KB.file s3://${bucket}/run2/{}
+
+<img width="131" alt="17" src="https://github.com/user-attachments/assets/fe208a97-ffbd-4cdf-8ec7-0e96615341be" />
+
+18. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 22.6 seconds to complete:
+time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/run3/{}
+
+<img width="136" alt="18" src="https://github.com/user-attachments/assets/94cf6718-1c0c-4183-ad53-051acba9e37a" />
+
+19. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 22.9 seconds to complete:
+time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/run3/{}  
+
+<img width="128" alt="19" src="https://github.com/user-attachments/assets/1ca25940-aea3-4a1b-a824-11ebf2388c5d" />
+
+20. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 8 seconds to complete:
+
+<img width="872" alt="20" src="https://github.com/user-attachments/assets/11f59341-c876-4676-9b72-49f4d5589d7c" />
+
+21. Run a command to download a 1GB file from an S3 bucket and upload the file into the same bucket with a different prefix, the operation took 22 seconds to complete:
+
+<img width="886" alt="21" src="https://github.com/user-attachments/assets/b0f6306f-744a-4e0f-a112-803b0569e8a9" />
+
+22. Run a command to use PUT Copy (copy-object) to move the file, the operation took 3 minutes 31 seconds to complete. 
+
+<img width="934" alt="22" src="https://github.com/user-attachments/assets/ff8c48e3-90ba-4770-81bb-ce3fc7424109" />
+
+### EFS Storage performance
+
+1. Connect to the SID-performane instance using EC2 Instance connect. Run a command to generate 1024 zero byte files, the operation takes 8 seconds to complete.
+
+<img width="548" alt="1" src="https://github.com/user-attachments/assets/506c8281-828e-433f-a7ea-4b4dc922e1a3" />
+
+2. Run a command to generate 1024 zero byte files using multiple threads, the operation took 4 seconds to complete.
+
+<img width="862" alt="2" src="https://github.com/user-attachments/assets/65c0c4ec-079f-4ed1-aebc-f6d8615fb8ac" />
+
+3. Run a command to generate 1024 zero byte files in multiple directories using multiple threads, the operation took 0.4 seconds to complete
+
+<img width="884" alt="3" src="https://github.com/user-attachments/assets/77ed7cca-1f2a-4444-8e2b-96c60acd8927" />
+
+4. Run a command to write a 2GB file to EFS using 1MB block size and sync once after each file, the operation took 6 seconds to complete
+
+<img width="712" alt="4" src="https://github.com/user-attachments/assets/2453f99b-b41f-4019-9c39-3a0a5bb16a31" />
+
+5. Run a command to write a 2GB file to EFS using 16MB block size and sync once after each file, the operation took 7 seconds to complete
+
+<img width="713" alt="5" src="https://github.com/user-attachments/assets/26154774-5b2c-438e-b0d8-4daad56b7441" />
+
+6. Run a command to write a 2GB file to EFS using 1MB block size and sync after each block, the operation took 51 seconds to complete
+
+<img width="713" alt="6" src="https://github.com/user-attachments/assets/775c9c85-84da-496b-8b8f-2d5af14fca9d" />
+
+7. Run a command to write a 2GB file to EFS using 16MB block size and sync once after each block, the operation took 14 seconds to complete
+
+<img width="716" alt="7" src="https://github.com/user-attachments/assets/3e1beeab-ac79-4821-9a02-065b60546a7f" />
+
+8. Run a command to write a 2GB of data to EFS using 1MB block size and 4 threads, the operation took 13 seconds to complete
+
+<img width="594" alt="8" src="https://github.com/user-attachments/assets/c40adfb0-c69a-48fb-91e6-f06455c8d086" />
+
+9. Run a command to write a 2GB of data to EFS using 1MB block size and 16 threads, the operation took 5 seconds to complete:
+time seq 0 15 | parallel --will-cite -j 16 dd if=/dev/zero \
+of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=128 oflag=sync
+
+<img width="113" alt="9" src="https://github.com/user-attachments/assets/fb5708eb-adc7-498b-ac12-d8341b485750" />
