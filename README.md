@@ -1,4 +1,4 @@
-<img width="548" alt="1" src="https://github.com/user-attachments/assets/db3bbe51-c342-427d-8248-3aaccf166cdd" /># aws-challenge-week-4
+# aws-challenge-week-4
 Week 4 of the 12 weeks of AWS challenge
 
 The fourth week of the challenge focused on storage. AWS offers a complete range of services for you to store, access, govern and analyze your data. In AWS you can select from a wide range of options, such as object storage, file storage and block storage services, backup and data migration options to build the foundation of your cloud IT environment. 
@@ -284,3 +284,112 @@ time seq 0 15 | parallel --will-cite -j 16 dd if=/dev/zero \
 of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=128 oflag=sync
 
 <img width="113" alt="9" src="https://github.com/user-attachments/assets/fb5708eb-adc7-498b-ac12-d8341b485750" />
+
+10. Clean up resources
+
+10.1 Delete the CloudFormation stacks
+
+## Migrating data to AWS
+In the hands on labs, I will be doing the following: 
+* Use DataSync to migrate data from on-premises (simulation) to AWS
+* Use Storage gateway to present the file system back on premises
+
+1. Launch 2 CloudFormation stacks, one stack will be launched in us-west-2 (this is the on-premises environment) and another stack should be launched in us-east=1 (cloud)
+
+<img width="955" alt="1" src="https://github.com/user-attachments/assets/1453896c-a090-419e-9502-00ba10955ad5" />
+
+<img width="952" alt="4" src="https://github.com/user-attachments/assets/ae224ac2-ff08-43cc-b3b3-3c7dfef6f397" />
+
+2. Connect to the SID-appserver instance using a EC2 Instance connect (SSH-session) and run a command to mount the NFS export
+
+<img width="568" alt="5" src="https://github.com/user-attachments/assets/a1500cfd-9bd1-4697-8f9f-ea7b7ba3f25c" />
+
+3. Run a command to verify that there are 200 images in the folder
+
+<img width="881" alt="6" src="https://github.com/user-attachments/assets/c6ca0414-b620-45b4-a4c3-425d37f5794a" />
+
+4. Activate the DataSync agent
+
+<img width="958" alt="8" src="https://github.com/user-attachments/assets/5a74bd87-f2e4-47fb-bec2-c771f8ff9665" />
+
+5. Create a NFS location
+
+<img width="952" alt="9" src="https://github.com/user-attachments/assets/d3648cd5-8fe8-4478-9dcc-758abd73cf49" />
+
+6. Create a S3 location
+
+<img width="956" alt="10" src="https://github.com/user-attachments/assets/fd21e217-87ed-470a-9856-a02148ddbf86" />
+
+7. Create a DataSync task
+
+<img width="952" alt="11" src="https://github.com/user-attachments/assets/7a7e244e-f006-40b4-8a0a-677d04cf7c1d" />
+
+8. Run the DataSync task, the task is tranferring the 200 files from (on premises) NFS to S3. 
+
+<img width="953" alt="12" src="https://github.com/user-attachments/assets/8872aa98-72bc-44c0-90d8-0716f7027059" />
+
+9. The S3 bucket now contains the 200 files that we transferred
+
+<img width="953" alt="13" src="https://github.com/user-attachments/assets/49493609-8e99-41b1-a3bf-a293e4ae9c5e" />
+
+10. Activate a File Gateway 
+
+<img width="946" alt="14" src="https://github.com/user-attachments/assets/1503c1c0-1912-4682-983a-ad3e063f8612" />
+
+<img width="953" alt="15" src="https://github.com/user-attachments/assets/c5e798d5-4972-4a66-99c1-a3015057d640" />
+
+11. Create an NFS share on the File Gateway
+
+<img width="956" alt="16" src="https://github.com/user-attachments/assets/3dc5efc2-6630-408f-b191-dc2d230e1775" />
+
+12. Connect to the SID-appserver instance using a EC2 Instance connect (SSH-session) and run the following command
+
+<img width="342" alt="17" src="https://github.com/user-attachments/assets/6df9e8e1-508a-42c9-9db3-b8edbf79fa19" />
+
+13. Run a command to mount the NFS share on the application server
+
+<img width="911" alt="18" src="https://github.com/user-attachments/assets/d706212f-bf64-402a-87d7-e18625de7d8b" />
+
+14. Run a command to verify that the same set of files exist on both NFS shares
+
+<img width="389" alt="19" src="https://github.com/user-attachments/assets/c7df7460-00ed-41c7-89df-b2a48532dbfb" />
+
+15. Run a command to create a new file on the NFS server
+
+<img width="600" alt="20" src="https://github.com/user-attachments/assets/7a3394fa-0a9f-4cab-9312-660b8d786eee" />
+
+16. Copy the new file to the S3 bucket by re-running the DataSync task
+
+<img width="954" alt="21" src="https://github.com/user-attachments/assets/94e6b5d0-0207-47ec-b51a-3107baa75dff" />
+
+17. Validating that the data transfer to S3 was successful
+
+<img width="955" alt="22" src="https://github.com/user-attachments/assets/77289fdb-8d56-41ea-8b57-572d77841bfd" />
+
+18. Run a command in the ssh-session to validate that the file exists locally 
+
+<img width="290" alt="23" src="https://github.com/user-attachments/assets/f5a66cc3-a0b2-4c48-8f8d-6a976bc7c57e" />
+
+19. Run a command in the ssh-session to validate that the file exists in the file gateway. The file was written to the S3 bucket via DataSync, not through the File Gateway share. 
+
+<img width="284" alt="24" src="https://github.com/user-attachments/assets/b9cc556e-66c8-487a-b5ab-01e670b403c1" />
+
+20. Refresh the metadata cache on File gateway to reflect the change
+
+<img width="955" alt="25" src="https://github.com/user-attachments/assets/6e6ab1c0-0bc9-49cc-b841-112233ccaf14" />
+
+21. In the SSH session, run a command to validate if the image exists in the file gateway. The image is now visible.
+
+<img width="283" alt="26" src="https://github.com/user-attachments/assets/a1659340-2c94-462e-9004-0634e9e3bdab" />
+
+22. Run the following command to unmount the file share: sudo umount /mnt/data
+
+23. In the us-east-1 region, delete the Task, Locations and Agent that were previously created
+
+24. In us-west-2 region, run a command to create a new file in the S3 bucket through File Gateway
+
+<img width="587" alt="27" src="https://github.com/user-attachments/assets/381bc505-9e13-43ec-ac74-0d69478a6e7b" />
+
+25. In the S3 bucket, the new file that we just created is visible
+
+<img width="950" alt="28" src="https://github.com/user-attachments/assets/9275d5a3-a372-4369-a454-c99a51d218dd" />
