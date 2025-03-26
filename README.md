@@ -5,7 +5,7 @@ The fourth week of the challenge focused on storage. AWS offers a complete range
 
 ## Prerequisites
 
-Before every hands on lab, use AWS CloudFormation to deploy the necessary resources as code, the templates will be used for setting up the workshop ennvironment in us-west-2 region. The templates are the following:
+Before every hands on lab, use AWS CloudFormation to deploy the necessary resources as code, the templates will be used for setting up the workshop environment in us-west-2 region. The templates are the following:
 * sid-base-template.yaml (required for all of the labs)
 * sid-backup-lab.yaml
 * sid-datamigration-onprem.yaml
@@ -18,7 +18,6 @@ In the hands on labs, I will be doing the following:
 * Use bucket policies, encryption and VPC endpoints to secure my S3 buckets
 * Use AWs Config and IAM Access analyzer to review my S3 security posture
 
-### Prerequisite steps
 1. Attach an IAM role to the running EC2 instance
 
 <img width="958" alt="2" src="https://github.com/user-attachments/assets/ab34d4b6-2777-4f07-aa2b-9ab66ffb3203" />
@@ -63,11 +62,11 @@ In the hands on labs, I will be doing the following:
 
 <img width="656" alt="12" src="https://github.com/user-attachments/assets/a33b600d-cb1c-4458-858c-642500b62424" />
 
-12. Update the bucket policy, the new policy encoforces that any new objects placed into ssekms-only/ prefix in the bucket must have SSE-KMS encryption
+12. Update the bucket policy, the new policy enforces that any new objects placed into ssekms-only/ prefix in the bucket must have SSE-KMS encryption
 
 <img width="950" alt="13" src="https://github.com/user-attachments/assets/4a412c74-3000-4753-8ad0-11f7e9de7edf" />
 
-13. Run comamnds in the SSH session to put text03, text04 and text05 objects into the bucket. The behaviour is as follows:
+13. Run commands in the SSH session to put text03, text04 and text05 objects into the bucket. The behaviour is as follows:
 * put object for text03 will succeed and is aws:kms because it inherits the default encryption of SSE-KMS as no encryption method has been specified
 * put object for text04 will succeed and it AES256 because we specified to use SSE-S3
 * put object for text05 will succeed and it is aws:kms 
@@ -76,7 +75,7 @@ In the hands on labs, I will be doing the following:
 
 14. Run commands to create new objects under the prefix ssekms-only/*, the behaviour is as follows:
 * put object for text06 will fail because although we have default encryption as SSE-KMS, the bucket policy requires explicit definition for SSE-KMS
-* put pbject for text07 will fail because since AES256 will use SSE-S3 and we only permit SSE-KMS encryption in this prefix per the bucket policy
+* put object for text07 will fail because since AES256 will use SSE-S3 and we only permit SSE-KMS encryption in this prefix per the bucket policy
 * put object for text08 will succeed, since SSE-KMS encryption is explicitly defined and allowed by the bucket policy
 
 <img width="932" alt="15" src="https://github.com/user-attachments/assets/1ffeebec-c26c-49d1-ba21-a89b2b8615f5" />
@@ -93,7 +92,7 @@ In the hands on labs, I will be doing the following:
 
 <img width="605" alt="18" src="https://github.com/user-attachments/assets/955e95ee-02b3-4acf-850d-cf859eeb1f11" />
 
-18. Modify the route table to asscociate with the VPC endpoint so that the EC2 instance can access S3 via the VPC endpoint
+18. Modify the route table to associate with the VPC endpoint so that the EC2 instance can access S3 via the VPC endpoint
 
 <img width="952" alt="19" src="https://github.com/user-attachments/assets/715bd43e-d736-477f-a5b0-3b51e94b0dcc" />
 
@@ -101,7 +100,7 @@ In the hands on labs, I will be doing the following:
 
 <img width="598" alt="20" src="https://github.com/user-attachments/assets/7b96d893-bd07-4204-bd4b-3d460fd351ef" />
 
-20. Configure a rule that searches for S3 buckets that are publically accessible using AWS Config. All of the rules are compliant. 
+20. Configure a rule that searches for S3 buckets that are publicly accessible using AWS Config. All of the rules are compliant. 
 
 <img width="646" alt="21" src="https://github.com/user-attachments/assets/ae056924-6fb1-45ed-a7f0-e2345377a987" />
 
@@ -146,12 +145,13 @@ In the hands on labs, I will be doing the following:
 ## Storage performance lab
 
 In the hands on labs, I will be doing the following: 
-* Test the performance of S3 by optimizing throughput, using the SYNC command and optmizing small file operations and copy operations
+* Test the performance of S3 by optimizing throughput, 
+* using the SYNC command and optimizing small file operations and copy operations
 * Test the performance of EFS
 
 ### S3 Storage performance
 
-1. Deploy the CloudFormation stack
+1. Deploy the CloudFormation template
 
 <img width="959" alt="1" src="https://github.com/user-attachments/assets/fb5b6583-d845-45f7-9c2c-c2af4f7df778" />
 
@@ -191,18 +191,20 @@ In the hands on labs, I will be doing the following:
 
 <img width="594" alt="10" src="https://github.com/user-attachments/assets/838d7182-b9e1-49ee-92df-370effe8f198" />
 
-11. Run a command to upload 1GB of data by uploading 5 200MB files in parellel. The operation took 2 seconds to complete.
+11. Run a command to upload 1GB of data by uploading 5 200MB files in parallel. The operation took 2 seconds to complete.
 
 <img width="881" alt="11" src="https://github.com/user-attachments/assets/9d98c8c4-a9ab-4330-b706-9c9a06963a0b" />
 
 12. Run a command to perform sync using 1 thread, the operation took 3 mins 23 secs to complete:
+```
 aws configure set default.s3.max_concurrent_requests 1 time aws s3 sync /ebs/tutorial/data-1m/ s3://${bucket}/sync1/
-
+```
 <img width="134" alt="12" src="https://github.com/user-attachments/assets/ca23c6c3-d79a-45a5-9f4c-89180471cf40" />
 
 13. Run a command to perform sync using 10 thread, the operation took 22 seconds to complete:
+```
 aws configure set default.s3.max_concurrent_requests 10 time aws s3 sync /ebs/tutorial/data-1m/ s3://${bucket}/sync2/
-
+```
 <img width="119" alt="13" src="https://github.com/user-attachments/assets/8c615ea2-587d-4875-9fa6-6f73f55d9168" />
 
 14. Run a command to create a text file that represents a list of object ids
@@ -214,23 +216,27 @@ aws configure set default.s3.max_concurrent_requests 10 time aws s3 sync /ebs/tu
 <img width="561" alt="15" src="https://github.com/user-attachments/assets/34f4fb94-013d-4bc1-be29-cbb28987cdbc" />
 
 16. Run a command to upload 500 1kb files to S3 using 5 threads, the operation took 49 seconds to complete:
+```
 time parallel --will-cite -a object_ids -j 5 aws s3 cp 1KB.file s3://${bucket}/run1/{}
-
+```
 <img width="121" alt="16" src="https://github.com/user-attachments/assets/dc076f1e-0cd2-4271-9db9-1a4f5025f1f3" />
 
 17.  Run a command to upload 500 1kb files to S3 using 15 threads, the operation took 23.9 seconds to complete:
+```
 time parallel --will-cite -a object_ids -j 15 aws s3 cp 1KB.file s3://${bucket}/run2/{}
-
+```
 <img width="131" alt="17" src="https://github.com/user-attachments/assets/fe208a97-ffbd-4cdf-8ec7-0e96615341be" />
 
 18. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 22.6 seconds to complete:
+```
 time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/run3/{}
-
+```
 <img width="136" alt="18" src="https://github.com/user-attachments/assets/94cf6718-1c0c-4183-ad53-051acba9e37a" />
 
 19. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 22.9 seconds to complete:
-time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/run3/{}  
-
+```
+time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/run3/{}
+```
 <img width="128" alt="19" src="https://github.com/user-attachments/assets/1ca25940-aea3-4a1b-a824-11ebf2388c5d" />
 
 20. Run a command to upload 500 1kb files to S3 using 50 threads, the operation took 8 seconds to complete:
@@ -247,7 +253,7 @@ time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/
 
 ### EFS Storage performance
 
-1. Connect to the SID-performane instance using EC2 Instance connect. Run a command to generate 1024 zero byte files, the operation takes 8 seconds to complete.
+1. Connect to the SID-performance instance using EC2 Instance connect. Run a command to generate 1024 zero byte files, the operation takes 8 seconds to complete.
 
 <img width="548" alt="1" src="https://github.com/user-attachments/assets/506c8281-828e-433f-a7ea-4b4dc922e1a3" />
 
@@ -280,9 +286,10 @@ time parallel --will-cite -a object_ids -j 50 aws s3 cp 1KB.file s3://${bucket}/
 <img width="594" alt="8" src="https://github.com/user-attachments/assets/c40adfb0-c69a-48fb-91e6-f06455c8d086" />
 
 9. Run a command to write a 2GB of data to EFS using 1MB block size and 16 threads, the operation took 5 seconds to complete:
+```
 time seq 0 15 | parallel --will-cite -j 16 dd if=/dev/zero \
 of=/efs/tutorial/dd/2G-dd-$(date +%Y%m%d%H%M%S.%3N)-{} bs=1M count=128 oflag=sync
-
+```
 <img width="113" alt="9" src="https://github.com/user-attachments/assets/fb5708eb-adc7-498b-ac12-d8341b485750" />
 
 10. Clean up resources
@@ -294,7 +301,7 @@ In the hands on labs, I will be doing the following:
 * Use DataSync to migrate data from on-premises (simulation) to AWS
 * Use Storage gateway to present the file system back on premises
 
-1. Launch 2 CloudFormation stacks, one stack will be launched in us-west-2 (this is the on-premises environment) and another stack should be launched in us-east=1 (cloud)
+1. Deploy 2 CloudFormation stacks, one stack will be launched in us-west-2 (this is the on-premises environment) and another stack should be launched in us-east=1 (cloud)
 
 <img width="955" alt="1" src="https://github.com/user-attachments/assets/1453896c-a090-419e-9502-00ba10955ad5" />
 
@@ -324,11 +331,11 @@ In the hands on labs, I will be doing the following:
 
 <img width="952" alt="11" src="https://github.com/user-attachments/assets/7a7e244e-f006-40b4-8a0a-677d04cf7c1d" />
 
-8. Run the DataSync task, the task is tranferring the 200 files from (on premises) NFS to S3. 
+8. Run the DataSync task, the task is transferring the 200 files from (on premises) NFS to S3. 
 
 <img width="953" alt="12" src="https://github.com/user-attachments/assets/8872aa98-72bc-44c0-90d8-0716f7027059" />
 
-9. The S3 bucket now contains the 200 files that we transferred
+9. The S3 bucket now contains the 200 files that were transferred
 
 <img width="953" alt="13" src="https://github.com/user-attachments/assets/49493609-8e99-41b1-a3bf-a293e4ae9c5e" />
 
@@ -378,18 +385,148 @@ In the hands on labs, I will be doing the following:
 
 <img width="955" alt="25" src="https://github.com/user-attachments/assets/6e6ab1c0-0bc9-49cc-b841-112233ccaf14" />
 
-21. In the SSH session, run a command to validate if the image exists in the file gateway. The image is now visible.
+21. In the SSH session, run a command to validate if the image exists in the file gateway, the image is now visible.
 
 <img width="283" alt="26" src="https://github.com/user-attachments/assets/a1659340-2c94-462e-9004-0634e9e3bdab" />
 
-22. Run the following command to unmount the file share: sudo umount /mnt/data
+22. Run the following command to unmount the file share:
+```
+sudo umount /mnt/data
+```
+24. In the us-east-1 region, delete the Task, Locations and Agent that were previously created
 
-23. In the us-east-1 region, delete the Task, Locations and Agent that were previously created
-
-24. In us-west-2 region, run a command to create a new file in the S3 bucket through File Gateway
+25. In us-west-2 region, run a command to create a new file in the S3 bucket through File Gateway
 
 <img width="587" alt="27" src="https://github.com/user-attachments/assets/381bc505-9e13-43ec-ac74-0d69478a6e7b" />
 
 25. In the S3 bucket, the new file that we just created is visible
 
 <img width="950" alt="28" src="https://github.com/user-attachments/assets/9275d5a3-a372-4369-a454-c99a51d218dd" />
+
+26. Clean up resources
+
+26.1 Delete the CloudFormation stacks
+
+## AWS Backup lab
+
+In the hands on labs, I will be doing the following: 
+* Create a new backup plan
+* Create on-demand backups of the EC2, EBS and EFS resources
+* Restore the EBS and EFS backups
+* Backup and recover Amazon S3 bucket
+
+1. Deploy the CloudFormation template
+
+<img width="954" alt="1" src="https://github.com/user-attachments/assets/f2515794-52f2-4733-9f9f-38e4cabd9ae4" />
+
+2. Create a SNS topic and subscribe to the topic
+
+<img width="943" alt="3" src="https://github.com/user-attachments/assets/99bcf24d-b79b-4cef-b834-122fa9975940" />
+
+<img width="425" alt="4" src="https://github.com/user-attachments/assets/d18783d7-c50b-47d2-912e-502357b9fff8" />
+
+3. Create a framework using AWS Backup Audit manager. AWS Backup audit manager provides backup governance control templates and backup activity reporting on your backup jobs, copy jobs and restore jobs. 
+
+<img width="949" alt="5" src="https://github.com/user-attachments/assets/3f0f341a-f0d2-4a7c-b1eb-83136b3de55c" />
+
+4. Create a new gold backup plan. This backup plan will take hourly backups of any supported resources within your account/region that have a tag named “backup” with the value “gold” AND a tag name "archive" with a value other than "false.
+
+<img width="954" alt="6" src="https://github.com/user-attachments/assets/e9d903ab-818a-49b0-9115-b41205c9b520" />
+
+<img width="955" alt="7" src="https://github.com/user-attachments/assets/33502d72-9aa9-4ca4-a43b-5f843ca7bcea" />
+
+5. Create an on-demand backup of the EBS volume. We will also receive an email notification from the SNS topic
+
+<img width="949" alt="9" src="https://github.com/user-attachments/assets/0eaf0fa9-b63f-4773-99e8-1b5faa7ec8f4" />
+
+<img width="695" alt="10" src="https://github.com/user-attachments/assets/48126327-05d8-44b6-9bbf-6a3163b1ba7b" />
+
+6. Create an on-demand backup of the EFS volume. We will also receive an email notification from the SNS topic
+
+<img width="954" alt="11" src="https://github.com/user-attachments/assets/b816e2d9-af51-4888-8313-2c6d603bf844" />
+
+<img width="717" alt="12" src="https://github.com/user-attachments/assets/e34ab409-cd24-4b24-8fbf-089d09a169e5" />
+
+7. Delete the Webserver EBS volume
+
+<img width="956" alt="13" src="https://github.com/user-attachments/assets/06245a07-cedc-4fe4-8e76-f8bb395b3279" />
+
+8. Connect to the SID-web-server instance and run a command to delete the EFS file system data
+
+<img width="260" alt="14" src="https://github.com/user-attachments/assets/268b8dfc-e251-47ad-ab12-442d8a28cf2c" />
+
+9. Open a new tab, copy and paste the public ip of instance into the browser and confirm that the content is missing from the web server
+
+<img width="288" alt="16" src="https://github.com/user-attachments/assets/eabefdac-d8a7-4ffc-9907-d47b7ac192ae" />
+
+10. Restore the EFS file system from the recovery point
+
+<img width="959" alt="17" src="https://github.com/user-attachments/assets/62ee2728-99ce-458c-a9c4-f6626d7ed39a" />
+
+11. Restore the EBS volume from the recovery point and attach it to the SID-web-server instance
+
+<img width="954" alt="18" src="https://github.com/user-attachments/assets/cf49f936-dfe5-405b-a4af-2e71dc420c14" />
+
+12. In the SSH session, run a command to mount a file system
+
+<img width="311" alt="19" src="https://github.com/user-attachments/assets/7f56f004-f812-4eab-b990-74b847f6d87d" />
+
+13. In the browser confirm that all of the data is accessible from the EFS and EBS restores
+
+<img width="950" alt="20" src="https://github.com/user-attachments/assets/b85883a5-9247-4ed4-9c7b-dce38578a244" />
+
+<img width="719" alt="21" src="https://github.com/user-attachments/assets/d20992e3-5e01-4045-a843-3483cabac075" />
+
+14. Create an on-demand backup of the SQL server
+
+<img width="952" alt="22" src="https://github.com/user-attachments/assets/ea871ef9-a5a1-4609-bc34-c8bb5a93f514" />
+
+15. Restore the SQL server database EBS volume from the snapshot taken by the backup
+
+<img width="947" alt="23" src="https://github.com/user-attachments/assets/574de983-4b64-4ded-891d-b83edaa13ae6" />
+
+16. Attach the restored volume to the "SQL-server 2019 - Restore" instance
+
+<img width="953" alt="24" src="https://github.com/user-attachments/assets/7d7ec734-662f-467c-a17f-a56346bbac86" />
+
+17. Check framework controls, the framework is in a non-compliant status
+
+<img width="953" alt="28" src="https://github.com/user-attachments/assets/ce24028a-8c5a-4b66-828a-8e003eb93c58" />
+
+18. Remediate one of the non-compliant resources by updating the Backup plan. Config will reevaluate the rule
+
+<img width="946" alt="29" src="https://github.com/user-attachments/assets/4f8aae5b-7ffd-4047-af14-1e6f64595730" />
+
+<img width="955" alt="30" src="https://github.com/user-attachments/assets/c33ab33f-6bb4-4868-bdd9-bb588c4e3c98" />
+
+19. One of the resources is now compliant
+
+<img width="561" alt="32" src="https://github.com/user-attachments/assets/16359bf7-4742-42a1-8457-faabbdd21727" />
+
+20. Create a Backup Audit Manager Report
+
+<img width="950" alt="33" src="https://github.com/user-attachments/assets/fdf37ca3-a343-4b15-9d83-e4681e942737" />
+
+21. Modify the bucket policy to allow AWS Backup to write to it
+
+<img width="953" alt="34" src="https://github.com/user-attachments/assets/4222ac5e-eb98-4904-8bc5-baf990d8773b" />
+
+22. AWS has successfully written the report to the S3 bucket
+
+<img width="956" alt="35" src="https://github.com/user-attachments/assets/5aebd345-1309-4a40-ae23-1eaa04a9ca32" />
+
+23. The report can be downloaded and results can be reviewed in Excel or any text editor of your choice
+
+<img width="858" alt="36" src="https://github.com/user-attachments/assets/2340381f-9d51-443f-b776-47f286399695" />
+
+24. Clean up resources
+
+24.1 Delete the sid-datasync-xxxxxx and sid-security-xxxxxx S3 buckets
+
+24.2 Delete all of the Backup plans
+
+24.3 SSH into the SID-backup-admin instance and run the following command to delete all of the recovery points and delete the vaults
+```
+sudo bash /home/ec2-user/cleanup.sh
+```
+24.4 Delete the CloudFormation stacks
